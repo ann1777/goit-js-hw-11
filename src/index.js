@@ -1,7 +1,8 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import debounce from 'lodash.debounce';
+// import debounce from 'lodash.debounce';
 import {Notify} from 'notiflix';
+import { fetchImages } from './js/fetchImages';
 // import { renderGallery } from './renderGallery';
 
 const inputFldEl = document.querySelector('input[name="searchQuery"]');
@@ -14,20 +15,26 @@ let perPage = 40;
 let page = 0;
 let name = inputFldEl.value;
 
+// Needed to hide "load more" and "close" buttons
+
+loadMoreBtn.style.display = 'none';
+closeBtn.style.display = 'none';
+
 async function eventHandler(e) {
     e.preventDefault();
     console.log(gallery);
-    // gallery.innerHTML = '';
+    gallery.innerHTML = '';
 
     page = 1;
     name = inputFldEl.value;
+    console.log(name);
 
     fetchImages(name, page, perPage)
     .then(name => {
-        let totalPages = name.totalSearchResults / perPage;
+        let totalPages = name.totalHits / perPage;
 
-        if(name.searchResults.length > 0) {
-            Notify.success(`Great! ${name.totalSearchResults} images have been founded.`);
+        if(name.hits.length > 0) {
+            Notify.success(`Great! ${name.totalHits} images have been founded.`);
             renderGallery(name);
             new SimpleLightbox('.gallery a');
             closeBtn.style.display = 'block';
@@ -36,9 +43,9 @@ async function eventHandler(e) {
             closeBtn.style.display = 'none';
         });
         if (page < totalPages) {
-            loadBtn.style.display = 'block';
+            loadMoreBtn.style.display = 'block';
           } else {
-            loadBtn.style.display = 'none';
+            loadMoreBtn.style.display = 'none';
             Notify.info("You've reached the end of search results.");
           }
         } else {
@@ -52,15 +59,15 @@ async function eventHandler(e) {
 searchForm.addEventListener('submit', eventHandler);
 
 function renderGallery(name) {
-    const markup = name.searchResults
-      .map(searchResult => {
+    const markup = name.hits
+      .map(hit => {
         return `<div class="photo-card">
   
-          <a class="gallery-item" href="${searchResult.largeImageURL}">
+          <a class="gallery-item" href="${hit.largeImageURL}">
             <img
               class="gallery__image"
-              src="${searchResult.webformatURL}"
-              alt="${searchResult.tags}"
+              src="${hit.webformatURL}"
+              alt="${hit.tags}"
               loading="lazy"
           /></a>
   
@@ -69,28 +76,28 @@ function renderGallery(name) {
               <p class="info-item">
                 <b class="material-symbols-outlined">thumb_up</b>
               </p>
-              <p class="info-counter">${searchResult.likes.toLocaleString()}</p>
+              <p class="info-counter">${hit.likes.toLocaleString()}</p>
             </div>
   
             <div class="info__box">
               <p class="info-item">
                 <b class="material-symbols-outlined">visibility</b>
               </p>
-              <p class="info-counter">${searchResult.views.toLocaleString()}</p>
+              <p class="info-counter">${hit.views.toLocaleString()}</p>
             </div>
   
             <div class="info__box">
               <p class="info-item">
                 <b class="material-symbols-outlined">forum</b>
               </p>
-              <p class="info-counter">${searchResult.comments.toLocaleString()}</p>
+              <p class="info-counter">${hit.comments.toLocaleString()}</p>
             </div>
   
             <div class="info__box">
               <p class="info-item">
                 <b class="material-symbols-outlined">download</b>
               </p>
-              <p class="info-counter">${searchResult.downloads.toLocaleString()}</p>
+              <p class="info-counter">${hit.downloads.toLocaleString()}</p>
             </div>
   
           </div>
@@ -99,3 +106,23 @@ function renderGallery(name) {
       .join('');
     gallery.insertAdjacentHTML('beforeend', markup);
 }
+
+loadMoreBtn.addEventListener(
+    'click',
+    () => {
+      name = inputFldEl.value;
+      page += 1;
+      fetchImages(name, page, perPage).then(name => {
+        let totalPages = name.totalHits / perPage;
+        renderGallery(name);
+        new SimpleLightbox('.gallery a');
+        if (page >= totalPages) {
+            loadMoreBtn.style.display = 'none';
+            Notify.info(
+            "Ooops, you've reached the end of search results."
+          );
+        }
+      });
+    },
+    true
+  );
