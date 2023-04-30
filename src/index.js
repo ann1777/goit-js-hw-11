@@ -113,14 +113,16 @@ loadMoreBtn.addEventListener(
       page += 1;
       fetchImages(name, page, perPage).then(name => {
         let totalPages = name.totalHits / perPage;
-        renderGallery(name);
-        closeBtn.style.display = 'block';
+        renderGallery(name);       
         new SimpleLightbox('.gallery a');
         if (page >= totalPages) {
             loadMoreBtn.style.display = 'none';
             Notify.info(
             "Ooops, you've reached the end of search results."
           );
+        }
+        else {
+          closeBtn.style.display = 'block';
         }
       });
     },
