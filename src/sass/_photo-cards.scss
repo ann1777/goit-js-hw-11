@@ -1,0 +1,40 @@
+.gallery {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    & .photo-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 350px;
+        max-width: 400px;
+        margin: 5px;
+        border-radius: 5px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 5px 5px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        & .gallery-item {
+            max-width: 350px;
+            &:hover img {
+                transform: scale(1.15);
+            }
+            & img {
+                width: 350px;
+                height: 190px;
+                object-fit: cover;
+                border-radius: 5px;
+                transition: transform 0.5s ease;
+                -webkit-transform: scale(1);
+            }
+        }
+    }
+}
+
+.info {
+    display: flex;
+    gap: 5px;
+    text-align: center;
+    justify-content: space-around;
+    line-height: 0.2em;
+    font-size: 0.7em;
+    color: #444;
+}

@@ -1,6 +1,5 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-// import debounce from 'lodash.debounce';
 import {Notify} from 'notiflix';
 import { fetchImages } from './js/fetchImages';
 // import { renderGallery } from './renderGallery';
@@ -34,13 +33,13 @@ async function eventHandler(e) {
         let totalPages = name.totalHits / perPage;
 
         if(name.hits.length > 0) {
-            Notify.success(`Great! ${name.totalHits} images have been founded.`);
+            Notify.success(`Horray! We found ${name.totalHits} images.`);
             renderGallery(name);
             new SimpleLightbox('.gallery a');
             closeBtn.style.display = 'block';
             closeBtn.addEventListener('click', () => {
             gallery.innerHTML = '';
-            closeBtn.style.display = 'none';
+            // closeBtn.style.display = 'none';
         });
         if (page < totalPages) {
             loadMoreBtn.style.display = 'block';
@@ -115,6 +114,7 @@ loadMoreBtn.addEventListener(
       fetchImages(name, page, perPage).then(name => {
         let totalPages = name.totalHits / perPage;
         renderGallery(name);
+        closeBtn.style.display = 'block';
         new SimpleLightbox('.gallery a');
         if (page >= totalPages) {
             loadMoreBtn.style.display = 'none';
@@ -126,3 +126,21 @@ loadMoreBtn.addEventListener(
     },
     true
   );
+
+  closeBtn.addEventListener(
+    'click',
+    () => {
+      name = inputFldEl.value;
+      page += 1;
+      fetchImages(name, page, perPage).then(name => {
+        let totalPages = name.totalHits / perPage;
+        renderGallery(name);
+        closeBtn.style.display = 'none';
+        new SimpleLightbox('.gallery a');
+        gallery.innerHTML = '';
+        page = 1;
+      }
+  );
+  window.addEventListener('load', fadeEffect);
+});
+  

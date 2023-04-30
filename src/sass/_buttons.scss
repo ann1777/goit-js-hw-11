@@ -1,0 +1,27 @@
+.btn-container {
+    position: relative;
+    height: 100%;
+
+    & .load-more,
+    .close-btn {
+        position: absolute;
+        width: 140px;
+        height: 40px;
+        right: 30px;
+        background: transparent;
+        border-radius: 10%;
+        border: 2px solid #452bdb;
+        &:hover {
+            color: #fff;
+            background: #452bdb;
+            border-radius: 10%;
+            border: 1px solid #444;
+        }
+    }
+    & .load-more {
+        top: 20px;
+    }
+    & .close-btn {
+        bottom: 20px;
+    }
+}
