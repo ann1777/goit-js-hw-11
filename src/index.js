@@ -8,7 +8,7 @@ import axios from 'axios';
 
 const inputFldEl = document.querySelector('input[name="searchQuery"]');
 const inputSearchBtn = document.querySelector('.search-btn.submit');
-const galeryItem = document.querySelector('.gallery-item'); 
+const galleryItems = document.querySelectorAll('galeryItem'); 
 const closeBtn = document.querySelector('.close-btn');
 const searchForm = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
@@ -20,8 +20,8 @@ let page = 0;
 let name = inputFldEl.value;
 
 
-loadMoreBtn.style.display = 'none';
-closeBtn.style.display = 'none';
+hideLoadMoreBtn();
+hideCloseBtn();
 searchForm.addEventListener('submit', onFormSubmit);
 
 async function onFormSubmit(e) {
@@ -32,21 +32,15 @@ async function onFormSubmit(e) {
     const data = await ImagesFetcher.getRequest();
     const pageMarkup = markupBuilder(data);
     renderGallery(pageMarkup);
+    showLoadMoreBtn();
+    showCloseBtn(); 
     if (ImagesFetcher.page < ImagesFetcher.totalPage) {
-      ImagesFetcher.page += 1;  
-      showLoadMoreBtn();        
+      ImagesFetcher.page += 1;         
   }
 
 function renderGallery(pageMarkup) {
   gallery.insertAdjacentHTML('beforeend', pageMarkup);
 }
-
-function showLoadMoreBtn() {
-  loadMoreBtn.classList.remove('is-hidden');
-  loadMoreBtn.addEventListener('click', onBtnLoadClick);
-  
-}
-const galleryItems = document.querySelectorAll('galeryItem');
 
 
 inputSearchBtn.addEventListener('click', (event) => {
@@ -94,18 +88,15 @@ document.querySelector('.info-counter:nth-child(2)').innerText += views;
 document.querySelector('.info-counter:nth-child(3)').innerText += comments;
 document.querySelector('.info-counter:last-child').innerText += downloads;
 
-return galleryItem;}
-
-if(fetchImages) {
-  loadMoreBtn.style.display = 'block';
-}
+return galleryItems;}
 
 async function onLoadMoreBtnClick() {
   hideLoadBtn();
   await ImagesFetcher.getRequest();
   const pageMarkup = markupBuilder(data);
   renderGallery(pageMarkup);
-  if (ImagesFetcher.page === ImagesFetcher.totalPage) { Notify.info("We're sorry, but you've reached the end of search results.");}
+  if (ImagesFetcher.page === ImagesFetcher.totalPage) { 
+    Notify.info("We're sorry, but you've reached the end of search results.");}
   else {
     window.scrollBy({
       top: cardHeight * 2,
@@ -113,36 +104,60 @@ async function onLoadMoreBtnClick() {
     });
     ImagesFetcher.page += 1;  
     showLoadMoreBtn();
+    showCloseBtn();
   }     
 } 
 
-  closeBtn.addEventListener(
-    'click',
-    () => {
-      name = inputFldEl.value;
-      page += 1;
-      fetchImages(name, page, perPage).then(name => {
-        let totalPages = name.totalHits / perPage;
-        renderGallery(name);
-        closeBtn.style.display = 'none';
-        new SimpleLightbox('.gallery a');
-        gallery.innerHTML = '';
-        page = 1;
-      }
-  );
-
-  window.addEventListener('scroll',function(e){
-    var scrollTop = window.pageYOffset
-    var distanseToDownLine = galeryItem.height - scrollTop - galeryItem.clientHeight
-    if(distanseToDownLine < 300){
-      galeryItem.add()
+closeBtn.addEventListener(
+  'click',
+  () => {
+    name = inputFldEl.value;
+    page += 1;
+    fetchImages(name, page, perPage).then(name => {
+      let totalPages = name.totalHits / perPage;
+      renderGallery(name);
+      closeBtn.style.display = 'none';
+      new SimpleLightbox('.gallery a');
+      gallery.innerHTML = '';
+      page = 1;
     }
+);
+
+window.addEventListener('scroll',function(e){
+  var scrollTop = window.pageYOffset
+  var distanseToDownLine = galleryItems.height - scrollTop - galleryItems.clientHeight
+  if(distanseToDownLine < 300){
+    galleryItems.add()
+  }
 },false)
   // window.addEventListener('load', fadeEffect);
 });
 
+function showLoadMoreBtn() {
+  loadMoreBtn.style.display = 'block';
+  loadMoreBtn.addEventListener('click', onLoadMoreBtnClick);
+}
+
+function showCloseBtn() {
+  closeBtn.style.display = 'block';
+  closeBtn.addEventListener('click', onLoadMoreBtnClick); 
+}
+
+function hideLoadMoreBtn() {
+  loadMoreBtn.style.display = 'none';
+  loadMoreBtn.removeEventListener('click', onLoadMoreBtnClick);
+ 
+}
+
+function hideCloseBtn() {
+  closeBtn.style.display = 'none';
+  closeBtn.removeEventListener('click', onLoadMoreBtnClick);
+}
+
 function clearMarkup() {
   page = 1;
   gallery.innerHTML = '';
+  hideCloseBtn();
+  hideLoadMoreBtn();
 }
   
