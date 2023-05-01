@@ -1,133 +1,120 @@
+'use strict'
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import {Notify} from 'notiflix';
-import { fetchImages } from './js/fetchImages';
-// import { renderGallery } from './renderGallery';
+import Fetcher from './js/fetchImages';
+import markupBuilder from './js/markupBuilder';
+import axios from 'axios';
 
 const inputFldEl = document.querySelector('input[name="searchQuery"]');
+const inputSearchBtn = document.querySelector('.search-btn.submit');
+const galeryItem = document.querySelector('.gallery-item'); 
 const closeBtn = document.querySelector('.close-btn');
 const searchForm = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-more');
+const ImagesFetcher = new Fetcher();
 
 let perPage = 40;
 let page = 0;
 let name = inputFldEl.value;
 
-// Needed to hide "load more" and "close" buttons
 
 loadMoreBtn.style.display = 'none';
 closeBtn.style.display = 'none';
+searchForm.addEventListener('submit', onFormSubmit);
 
-async function eventHandler(e) {
+async function onFormSubmit(e) {
     e.preventDefault();
     console.log(gallery);
-    gallery.innerHTML = '';
+    clearMarkup();
+    ImagesFetcher.query = e.target.elements.searchQuery.value;
+    const data = await ImagesFetcher.getRequest();
+    const pageMarkup = markupBuilder(data);
+    renderGallery(pageMarkup);
+    if (ImagesFetcher.page < ImagesFetcher.totalPage) {
+      ImagesFetcher.page += 1;  
+      showLoadMoreBtn();        
+  }
 
-    page = 1;
-    name = inputFldEl.value;
-    console.log(name);
+function renderGallery(pageMarkup) {
+  gallery.insertAdjacentHTML('beforeend', pageMarkup);
+}
 
-    fetchImages(name, page, perPage)
-    .then(name => {
-        let totalPages = name.totalHits / perPage;
+function showLoadMoreBtn() {
+  loadMoreBtn.classList.remove('is-hidden');
+  loadMoreBtn.addEventListener('click', onBtnLoadClick);
+  
+}
+const galleryItems = document.querySelectorAll('galeryItem');
 
-        if(name.hits.length > 0) {
-            Notify.success(`Horray! We found ${name.totalHits} images.`);
-            renderGallery(name);
-            new SimpleLightbox('.gallery a');
-            closeBtn.style.display = 'block';
-            closeBtn.addEventListener('click', () => {
-            gallery.innerHTML = '';
-            // closeBtn.style.display = 'none';
+
+inputSearchBtn.addEventListener('click', (event) => {
+  event.preventDefault();
+  if(!galleryItems) {
+    return;}
+  
+  else if(galleryItems.length) { // check if there are any gallery items
+  const cardHeight = galleryItems[0].getBoundingClientRect().height; // use index 0 to get the height of the first gallery item
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  const scrollPosition = scrollTop + (cardHeight * 2);
+
+  window.scrollBy({
+    top: scrollPosition,
+    behavior: 'smooth',
+  });
+
+
+  setTimeout(() => {
+    if (galleryItems.length > 2) {
+      const lastItem = galleryItems[galleryItems.length - 1];
+      const lastItemPosition = lastItem.offsetTop + lastItem.offsetHeight;
+      const windowHeight = window.innerHeight;
+
+      // If the last item is below the fold, scroll to it
+      if (lastItemPosition > scrollTop && lastItemPosition < scrollTop + windowHeight) {
+        window.scrollTo({
+          top: lastItemPosition,
+          behavior: 'smooth'
         });
-        if (page < totalPages) {
-            loadMoreBtn.style.display = 'block';
-          } else {
-            loadMoreBtn.style.display = 'none';
-            Notify.info("You've reached the end of search results.");
-          }
-        } else {
-            Notify.info("You've reached the end of search results.");
-          gallery.uinnerHTML = '';
-        }
-    })
-    .catch(error => console.log('ERROR: ' +error));
+      }
+    }
+  }, 100);
 }
-    
-searchForm.addEventListener('submit', eventHandler);
+});
+   
+const { largeImageURL, webformatURL, tags, likes, views, comments, downloads } = galleryItems;
 
-function renderGallery(name) {
-    const markup = name.hits
-      .map(hit => {
-        return `<div class="photo-card">
-  
-          <a class="gallery-item" href="${hit.largeImageURL}">
-            <img
-              class="gallery__image"
-              src="${hit.webformatURL}"
-              alt="${hit.tags}"
-              loading="lazy"
-          /></a>
-  
-          <div class="info">
-            <div class="info__box">
-              <p class="info-item">
-                <b class="material-symbols-outlined">thumb_up</b>
-              </p>
-              <p class="info-counter">${hit.likes.toLocaleString()}</p>
-            </div>
-  
-            <div class="info__box">
-              <p class="info-item">
-                <b class="material-symbols-outlined">visibility</b>
-              </p>
-              <p class="info-counter">${hit.views.toLocaleString()}</p>
-            </div>
-  
-            <div class="info__box">
-              <p class="info-item">
-                <b class="material-symbols-outlined">forum</b>
-              </p>
-              <p class="info-counter">${hit.comments.toLocaleString()}</p>
-            </div>
-  
-            <div class="info__box">
-              <p class="info-item">
-                <b class="material-symbols-outlined">download</b>
-              </p>
-              <p class="info-counter">${hit.downloads.toLocaleString()}</p>
-            </div>
-  
-          </div>
-        </div>`;
-      })
-      .join('');
-    gallery.insertAdjacentHTML('beforeend', markup);
+document.querySelector('.gallery-item').innerText = largeImageURL;
+document.querySelector('.gallery__image').innerText = webformatURL;
+document.querySelector('.gallery__image').innerText = tags;
+
+document.querySelector('.info-counter:first-child').innerText += likes;
+document.querySelector('.info-counter:nth-child(2)').innerText += views;
+document.querySelector('.info-counter:nth-child(3)').innerText += comments;
+document.querySelector('.info-counter:last-child').innerText += downloads;
+
+return galleryItem;}
+
+if(fetchImages) {
+  loadMoreBtn.style.display = 'block';
 }
 
-loadMoreBtn.addEventListener(
-    'click',
-    () => {
-      name = inputFldEl.value;
-      page += 1;
-      fetchImages(name, page, perPage).then(name => {
-        let totalPages = name.totalHits / perPage;
-        renderGallery(name);       
-        new SimpleLightbox('.gallery a');
-        if (page >= totalPages) {
-            loadMoreBtn.style.display = 'none';
-            Notify.info(
-            "Ooops, you've reached the end of search results."
-          );
-        }
-        else {
-          closeBtn.style.display = 'block';
-        }
-      });
-    },
-    true
-  );
+async function onLoadMoreBtnClick() {
+  hideLoadBtn();
+  await ImagesFetcher.getRequest();
+  const pageMarkup = markupBuilder(data);
+  renderGallery(pageMarkup);
+  if (ImagesFetcher.page === ImagesFetcher.totalPage) { Notify.info("We're sorry, but you've reached the end of search results.");}
+  else {
+    window.scrollBy({
+      top: cardHeight * 2,
+      behavior: 'smooth',
+    });
+    ImagesFetcher.page += 1;  
+    showLoadMoreBtn();
+  }     
+} 
 
   closeBtn.addEventListener(
     'click',
@@ -143,6 +130,19 @@ loadMoreBtn.addEventListener(
         page = 1;
       }
   );
-  window.addEventListener('load', fadeEffect);
+
+  window.addEventListener('scroll',function(e){
+    var scrollTop = window.pageYOffset
+    var distanseToDownLine = galeryItem.height - scrollTop - galeryItem.clientHeight
+    if(distanseToDownLine < 300){
+      galeryItem.add()
+    }
+},false)
+  // window.addEventListener('load', fadeEffect);
 });
+
+function clearMarkup() {
+  page = 1;
+  gallery.innerHTML = '';
+}
   
