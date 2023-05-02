@@ -10,7 +10,7 @@
         right: 30px;
         background: transparent;
         border-radius: 10%;
-        border: 2px solid #452bdb;
+        border: 2px solid #080517;
         &:hover {
             color: #fff;
             background: #452bdb;
@@ -18,10 +18,7 @@
             border: 1px solid #444;
         }
     }
-    & .load-more {
-        top: 20px;
-    }
     & .close-btn {
-        bottom: 20px;
+        bottom: 30px;
     }
 }

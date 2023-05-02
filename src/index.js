@@ -21,7 +21,7 @@ let page = 0;
 let name = inputFldEl.value;
 clearMarkup();
 
-const getRandomPhotos = async() => {
+async function getRandomPhotos() {
   /* imagesFetcher
     .getRandomPhotos()
     .then(response => {
@@ -31,7 +31,6 @@ const getRandomPhotos = async() => {
     .catch(err => {
       console.log(err);
     }); */
-
   try {
     const response = await imagesFetcher.getRandomPhotos();
     const data = response.data;
@@ -40,7 +39,7 @@ const getRandomPhotos = async() => {
   catch (err) {
     console.log(err);
   }
-};
+}
 getRandomPhotos();
 
 hideLoadMoreBtn();
@@ -72,7 +71,6 @@ function renderGallery(pageMarkup) {
   // console.log(pageMarkup);
   gallery.insertAdjacentHTML('beforeend', pageMarkup);
 }
-
 
 inputSearchBtn.addEventListener('click', (event) => {
   event.preventDefault();
@@ -107,10 +105,11 @@ inputSearchBtn.addEventListener('click', (event) => {
 }
 });
 
-try {
-  const { largeImageURL, webImageURL, likes, views, comments, downloads } = galleryItems;
+const { largeImageURL, webImageURL, likes, views, comments, downloads } = galleryItems;
 
-  document.querySelector('.gallery-item').innerText = largeImageURL;
+try { 
+
+  document.querySelector(".gallery-item").innerText = largeImageURL;
   document.querySelector('.gallery__image').innerText = webImageURL;
   document.querySelector('.info-counter:first-child').innerText += likes;
   document.querySelector('.info-counter:nth-child(2)').innerText += views;
@@ -118,45 +117,41 @@ try {
   document.querySelector('.info-counter:last-child').innerText += downloads;
   
 } catch (err) {
-  console.log(err);
+  console.dir(err);
 }
 return galleryItems;
 }
 
 
 async function onLoadMoreBtnClick() {
-  hideLoadMoreBtn();
-  const data = await imagesFetcher.getRequest();
-  const pageMarkup = markupBuilder(data);
-  try {
-    renderGallery(pageMarkup);
-  if (imagesFetcher.page === imagesFetcher.totalPage) { 
-    Notify.info("We're sorry, but you've reached the end of search results.");}
-  else {
-    window.scrollBy({
-      top: cardHeight * 2,
-      behavior: 'smooth',
-    });
-    imagesFetcher.query = e.target.elements.searchQuery.value;
+  closeBtn.addEventListener ('click',
+  async () => {
+    hideLoadMoreBtn();
+    console.log(imagesFetcher.page);
+    if (imagesFetcher.page === imagesFetcher.totalPage) { 
+      Notify.info("We're sorry, but you've reached the end of search results.");}
     const data = await imagesFetcher.getRequest();
     const pageMarkup = markupBuilder(data);
-    renderGallery(pageMarkup);
-    showCloseBtn();
-    showLoadMoreBtn();
-    imagesFetcher.page += 1;  
-    showLoadMoreBtn();
-    showCloseBtn();
-  } 
-  } catch (err) {
-    Notify.failure('RenderGallery method error');
-  }
-      
-} 
+    try {
+      renderGallery(pageMarkup);
+      console.log(pageMmarkup);
+      showCloseBtn();
+      showLoadMoreBtn();
+      imagesFetcher.page += 1;
+      window.scrollBy({
+      top: cardHeight * 2,
+      behavior: 'smooth',
+    })
+    } catch (err) {
+      Notify.failure('RenderGallery method error');}     
+  });
+};
 
-async function onCloseBtnClick() {
+function onCloseBtnClick() {
   closeBtn.addEventListener ('click',
   () => {
-    gallery.clearMarkup();m
+    console.log(gallery);
+    gallery.clearMarkup();
     closeBtn.style.display = 'none';
     new SimpleLightbox('.gallery a');
     gallery.innerHTML = '';
@@ -164,14 +159,13 @@ async function onCloseBtnClick() {
   });
 };
 
-
-window.addEventListener('scroll',function(e){
-  var scrollTop = window.pageYOffset
-  var distanseToDownLine = galleryItems.height - scrollTop - galleryItems.clientHeight
-  if(distanseToDownLine < 300){
-    galleryItems.add()
-  }
-},false);
+// window.addEventListener('scroll',function(e){
+//   var scrollTop = window.pageYOffset
+//   var distanseToDownLine = galleryItems.height - scrollTop - galleryItems.clientHeight
+//   if(distanseToDownLine < 300){
+//     galleryItems.add()
+//   }
+// },false);
 
 
 function showLoadMoreBtn() {
@@ -181,7 +175,7 @@ function showLoadMoreBtn() {
 
 function showCloseBtn() {
   closeBtn.style.display = 'block';
-  closeBtn.addEventListener('click', onLoadMoreBtnClick); 
+  closeBtn.addEventListener('click', onCloseBtnClick); 
 }
 
 function hideLoadMoreBtn() {
@@ -195,9 +189,9 @@ function hideCloseBtn() {
   closeBtn.removeEventListener('click', onCloseBtnClick);
 }
 
-function insertMarckup(markupStrings) {
-  gallery.insertAdjacentElement('beforeend', markupStrings);
-}
+// function insertMarckup(markupStrings) {
+//   gallery.insertAdjacentElement('beforeend', markupStrings);
+// }
 
 function clearMarkup() {
   ImgsFetcher.page = 1;
