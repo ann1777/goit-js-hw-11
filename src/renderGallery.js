@@ -1,13 +1,15 @@
-/* export function renderGallery(name) {
-    const markup = name.searchResults
-      .map(searchResult => {
+const gallery = document.querySelector('.gallery');
+ export function renderGallery(data) {
+  // console.log(data);
+    const markup = data.hits
+      .map(hits => {
         return `<div class="photo-card">
   
-          <a class="gallery-item" href="${searchResult.largeImageURL}">
+          <a class="gallery-item" href="${hits.largeImageURL}">
             <img
               class="gallery__image"
-              src="${searchResult.webformatURL}"
-              alt="${searchResult.tags}"
+              src="${hits.webformatURL}"
+              alt="${hits.tags}"
               loading="lazy"
           /></a>
   
@@ -16,28 +18,28 @@
               <p class="info-item">
                 <b class="material-symbols-outlined">thumb_up</b>
               </p>
-              <p class="info-counter">${searchResult.likes.toLocaleString()}</p>
+              <p class="info-counter">${hits.likes.toLocaleString()}</p>
             </div>
   
             <div class="info__box">
               <p class="info-item">
                 <b class="material-symbols-outlined">visibility</b>
               </p>
-              <p class="info-counter">${searchResult.views.toLocaleString()}</p>
+              <p class="info-counter">${hits.views.toLocaleString()}</p>
             </div>
   
             <div class="info__box">
               <p class="info-item">
                 <b class="material-symbols-outlined">forum</b>
               </p>
-              <p class="info-counter">${searchResult.comments.toLocaleString()}</p>
+              <p class="info-counter">${hits.comments.toLocaleString()}</p>
             </div>
   
             <div class="info__box">
               <p class="info-item">
                 <b class="material-symbols-outlined">download</b>
               </p>
-              <p class="info-counter">${searchResult.downloads.toLocaleString()}</p>
+              <p class="info-counter">${hits.downloads.toLocaleString()}</p>
             </div>
   
           </div>
@@ -45,4 +47,6 @@
       })
       .join('');
     gallery.insertAdjacentHTML('beforeend', markup);
-  } */
+    // console.log(gallery);
+    // console.log(markup);
+  } 

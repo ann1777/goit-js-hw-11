@@ -10,7 +10,7 @@ export default class ImagesFetcher {
         this.query = '';
         this.page = null;
         this.per_page = 40;
-        this.totalPage = 1;
+        this.total_page = 1;
     }
     async getRequest() {
         const searchParams = {
@@ -22,25 +22,31 @@ export default class ImagesFetcher {
           orientation: 'portrait',
           safesearch: true,
         }
-    const response = await axios.get(this.#BASE_URL, { params: searchParams });
+        try {
+          const response = await axios.get(this.#BASE_URL, { params: searchParams });
 
-    if (response.data.total === 0) {Notify.failure("Sorry, there are no images matching your search query. Please try again.");} 
+          if (response.data.total === 0) {Notify.failure("Sorry, there are no images matching your search query. Please try again.");} 
 
-    this.totalPage = Math.ceil(response.data.total / this.per_page);  
+          this.total_page = Math.ceil(response.data.total / this.per_page);  
 
-    const data = response.data.hits;
-    console.log(data);
-    return data;
+          const data = await response.data.hits;
+          console.log(data);
+          return data;
+        } catch (err) {
+          console.log(err);
+        }
+    
     };
-
-    /* getRandomPhotos() {
+    getRandomPhotos() {
       const searchParams = {
-        query: 'random',
+        key: this.#KEY,
+        q: this.query,
         page: this.page,
-        per_page: this.per_page,
+        perPage: this.per_page,
+        imageType: 'photo',
         orientation: 'portrait',
-        client_id: this.#KEY,
+        safesearch: true,
       };
-      return axios.get(`${this.#BASE_URL}/hits`, { params: searchParams });
-    } */
+      return axios.get(`${this.#BASE_URL}`, { params: searchParams });
+    }
 }
