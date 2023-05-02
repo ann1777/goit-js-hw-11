@@ -105,67 +105,58 @@ inputSearchBtn.addEventListener('click', (event) => {
 }
 });
 
-const { largeImageURL, webImageURL, likes, views, comments, downloads } = galleryItems;
+// const { largeImageURL, webImageURL, likes, views, comments, downloads } = galleryItems;
 
-try { 
+// try { 
 
-  document.querySelector(".gallery-item").innerText = largeImageURL;
-  document.querySelector('.gallery__image').innerText = webImageURL;
-  document.querySelector('.info-counter:first-child').innerText += likes;
-  document.querySelector('.info-counter:nth-child(2)').innerText += views;
-  document.querySelector('.info-counter:nth-child(3)').innerText += comments;
-  document.querySelector('.info-counter:last-child').innerText += downloads;
+//   document.querySelector(".gallery-item").innerText = largeImageURL;
+//   document.querySelector('.gallery__image').innerText = webImageURL;
+//   document.querySelector('.info-counter:first-child').innerText += likes;
+//   document.querySelector('.info-counter:nth-child(2)').innerText += views;
+//   document.querySelector('.info-counter:nth-child(3)').innerText += comments;
+//   document.querySelector('.info-counter:last-child').innerText += downloads;
   
-} catch (err) {
-  console.dir(err);
-}
-return galleryItems;
+// } catch (err) {
+//   console.dir(err);
+// }
+// return galleryItems;
 }
 
 
 async function onLoadMoreBtnClick() {
-  closeBtn.addEventListener ('click',
+  loadMoreBtn.addEventListener ('click',
   async () => {
-    hideLoadMoreBtn();
-    console.log(imagesFetcher.page);
+    // console.log(imagesFetcher.page);
     if (imagesFetcher.page === imagesFetcher.totalPage) { 
       Notify.info("We're sorry, but you've reached the end of search results.");}
-    const data = await imagesFetcher.getRequest();
-    const pageMarkup = markupBuilder(data);
-    try {
-      renderGallery(pageMarkup);
-      console.log(pageMmarkup);
-      showCloseBtn();
-      showLoadMoreBtn();
-      imagesFetcher.page += 1;
-      window.scrollBy({
+      else if (imagesFetcher.page < imagesFetcher.totalPage) {
+        imagesFetcher.page += 1;        
+        gallery.refresh();
+    } try {
+      const { height: cardHeight } = document.querySelector(".gallery").firstElementChild.getBoundingClientRect();
+
+    window.scrollBy({
       top: cardHeight * 2,
-      behavior: 'smooth',
-    })
-    } catch (err) {
+      behavior: "smooth",
+    });
+   } catch (err) {
       Notify.failure('RenderGallery method error');}     
-  });
-};
+   });
+  }
 
 function onCloseBtnClick() {
   closeBtn.addEventListener ('click',
   () => {
     console.log(gallery);
-    gallery.clearMarkup();
+    clearMarkup();
     closeBtn.style.display = 'none';
     new SimpleLightbox('.gallery a');
-    gallery.innerHTML = '';
+    getRandomPhotos();
+    /* gallery.innerHTML = ''; */
+    inputFldEl.value = '';
     page = 1;
   });
 };
-
-// window.addEventListener('scroll',function(e){
-//   var scrollTop = window.pageYOffset
-//   var distanseToDownLine = galleryItems.height - scrollTop - galleryItems.clientHeight
-//   if(distanseToDownLine < 300){
-//     galleryItems.add()
-//   }
-// },false);
 
 
 function showLoadMoreBtn() {
