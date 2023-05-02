@@ -19,16 +19,27 @@ let perPage = 40;
 let page = 0;
 let name = inputFldEl.value;
 
+const imgsFetcher = new Fetcher();
 
+const getRandomPhotos = () => {
+  imgsFetcher.getRandomPhotos()
+  .then(response => {
+    const { data } = response;
+
+    gallery.innerHTML = renderGallery(pageMarkup);
+  })
+}
 hideLoadMoreBtn();
 hideCloseBtn();
+getRandomPhotos();
 searchForm.addEventListener('submit', onFormSubmit);
 
 async function onFormSubmit(e) {
     e.preventDefault();
+
     console.log(gallery);
     clearMarkup();
-    ImagesFetcher.query = e.target.elements.searchQuery.value;
+    ImagesFetcher.query = e.currentTarget.searchQuery.value;
     const data = await ImagesFetcher.getRequest();
     const pageMarkup = markupBuilder(data);
     renderGallery(pageMarkup);
@@ -89,6 +100,7 @@ document.querySelector('.info-counter:nth-child(3)').innerText += comments;
 document.querySelector('.info-counter:last-child').innerText += downloads;
 
 return galleryItems;}
+
 
 async function onLoadMoreBtnClick() {
   hideLoadBtn();
