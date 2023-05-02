@@ -2,9 +2,9 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import {Notify} from 'notiflix';
-import Fetcher from './js/fetchImages';
+import ImgsFetcher from './js/fetchImages';
 import markupBuilder from './js/markupBuilder';
-import axios from 'axios';
+// import axios from 'axios';
 
 const inputFldEl = document.querySelector('input[name="searchQuery"]');
 const inputSearchBtn = document.querySelector('.search-btn.submit');
@@ -13,40 +13,42 @@ const closeBtn = document.querySelector('.close-btn');
 const searchForm = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-more');
-const ImagesFetcher = new Fetcher();
+const imagesFetcher = new ImgsFetcher();
 
 let perPage = 40;
 let page = 0;
 let name = inputFldEl.value;
 
-const imgsFetcher = new Fetcher();
+// const getRandomPhotos = () => {
+//   imagesFetcher.getRandomPhotos()
+//   .then(response => {
+//     const { data } = response;
 
-const getRandomPhotos = () => {
-  imgsFetcher.getRandomPhotos()
-  .then(response => {
-    const { data } = response;
-
-    gallery.innerHTML = renderGallery(pageMarkup);
-  })
-}
-hideLoadMoreBtn();
-hideCloseBtn();
-getRandomPhotos();
+//     gallery.innerHTML = renderGallery(pageMarkup);
+//   })
+// }
+// hideLoadMoreBtn();
+// hideCloseBtn();
+// getRandomPhotos();
 searchForm.addEventListener('submit', onFormSubmit);
 
 async function onFormSubmit(e) {
     e.preventDefault();
 
-    console.log(gallery);
     clearMarkup();
-    ImagesFetcher.query = e.currentTarget.searchQuery.value;
-    const data = await ImagesFetcher.getRequest();
+    imagesFetcher.query = e.target.elements.searchQuery.value;
+    const data = await imagesFetcher.getRequest();
     const pageMarkup = markupBuilder(data);
     renderGallery(pageMarkup);
-    showLoadMoreBtn();
-    showCloseBtn(); 
-    if (ImagesFetcher.page < ImagesFetcher.totalPage) {
-      ImagesFetcher.page += 1;         
+    showCloseBtn();
+    if (data.total_pages === 0) {
+      clearMarkup()
+      console.log('Nothing was found for your request');
+      return;
+    } 
+    if (imagesFetcher.page < imagesFetcher.totalPage) {
+      imagesFetcher.page += 1;
+      showLoadMoreBtn();         
   }
 
 function renderGallery(pageMarkup) {
@@ -76,7 +78,6 @@ inputSearchBtn.addEventListener('click', (event) => {
       const lastItemPosition = lastItem.offsetTop + lastItem.offsetHeight;
       const windowHeight = window.innerHeight;
 
-      // If the last item is below the fold, scroll to it
       if (lastItemPosition > scrollTop && lastItemPosition < scrollTop + windowHeight) {
         window.scrollTo({
           top: lastItemPosition,
@@ -104,7 +105,7 @@ return galleryItems;}
 
 async function onLoadMoreBtnClick() {
   hideLoadBtn();
-  await ImagesFetcher.getRequest();
+  const data = await ImagesFetcher.getRequest();
   const pageMarkup = markupBuilder(data);
   renderGallery(pageMarkup);
   if (ImagesFetcher.page === ImagesFetcher.totalPage) { 
@@ -120,8 +121,8 @@ async function onLoadMoreBtnClick() {
   }     
 } 
 
-closeBtn.addEventListener(
-  'click',
+async function onCloseBtnClick() {
+  closeBtn.addEventListener ('click',
   () => {
     name = inputFldEl.value;
     page += 1;
@@ -132,8 +133,9 @@ closeBtn.addEventListener(
       new SimpleLightbox('.gallery a');
       gallery.innerHTML = '';
       page = 1;
-    }
-);
+    });
+  });
+};
 
 window.addEventListener('scroll',function(e){
   var scrollTop = window.pageYOffset
@@ -143,7 +145,7 @@ window.addEventListener('scroll',function(e){
   }
 },false)
   // window.addEventListener('load', fadeEffect);
-});
+
 
 function showLoadMoreBtn() {
   loadMoreBtn.style.display = 'block';
@@ -163,13 +165,18 @@ function hideLoadMoreBtn() {
 
 function hideCloseBtn() {
   closeBtn.style.display = 'none';
-  closeBtn.removeEventListener('click', onLoadMoreBtnClick);
+  closeBtn.removeEventListener('click', onCloseBtnClick);
+}
+
+function insertMarckup(markupStrings) {
+  gallery.insertAdjacentElement('beforeend', markupStrings);
 }
 
 function clearMarkup() {
-  page = 1;
+  ImgsFetcher.page = 1;
   gallery.innerHTML = '';
   hideCloseBtn();
   hideLoadMoreBtn();
+  loadMoreBtn.removeEventListener('click', onLoadMoreBtnClick);
 }
   
