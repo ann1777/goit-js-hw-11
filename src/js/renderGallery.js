@@ -1,15 +1,13 @@
 const gallery = document.querySelector('.gallery');
  export function renderGallery(data) {
-  // console.log(data);
-    const markup = data.hits
-      .map(hits => {
+    const markup = data.hits.map(el => {
         return `<div class="photo-card">
   
-          <a class="gallery-item" href="${hits.largeImageURL}">
+          <a class="gallery__item" href="${el.largeImageURL}">
             <img
               class="gallery__image"
-              src="${hits.webformatURL}"
-              alt="${hits.tags}"
+              src="${el.previewURL}"
+              alt="${el.tags}"
               loading="lazy"
           /></a>
   
@@ -18,28 +16,28 @@ const gallery = document.querySelector('.gallery');
               <p class="info-item">
                 <b class="material-symbols-outlined">thumb_up</b>
               </p>
-              <p class="info-counter">${hits.likes.toLocaleString()}</p>
+              <p class="info-counter">${el.likes.toLocaleString()}</p>
             </div>
   
             <div class="info__box">
               <p class="info-item">
                 <b class="material-symbols-outlined">visibility</b>
               </p>
-              <p class="info-counter">${hits.views.toLocaleString()}</p>
+              <p class="info-counter">${el.views.toLocaleString()}</p>
             </div>
   
             <div class="info__box">
               <p class="info-item">
                 <b class="material-symbols-outlined">forum</b>
               </p>
-              <p class="info-counter">${hits.comments.toLocaleString()}</p>
+              <p class="info-counter">${el.comments.toLocaleString()}</p>
             </div>
   
             <div class="info__box">
               <p class="info-item">
                 <b class="material-symbols-outlined">download</b>
               </p>
-              <p class="info-counter">${hits.downloads.toLocaleString()}</p>
+              <p class="info-counter">${el.downloads.toLocaleString()}</p>
             </div>
   
           </div>

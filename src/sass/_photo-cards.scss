@@ -12,7 +12,7 @@
         border-radius: 5px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 5px 5px rgba(0, 0, 0, 0.3);
         overflow: hidden;
-        & .gallery-item {
+        & .gallery__item {
             max-width: 350px;
             &:hover img {
                 transform: scale(1.15);
@@ -20,13 +20,11 @@
             & img {
                 display: block;
                 width: 350px;
-                max-width: 350px;
                 height: 190px;
-                max-height: 190px;
                 object-fit:cover;
                 border-radius: 5px;
                 transition: transform 0.5s ease;
-                -webkit-transform: scale(1);
+                -webkit-transform: scale(1); 
             }
         }
     }
