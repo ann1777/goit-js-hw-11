@@ -44,7 +44,7 @@ async function getRandomPhotos() {
   catch (err) {
     console.log(err);
   }
-}
+};
 
 async function onFormSubmit(e) {
     e.preventDefault();
@@ -120,7 +120,7 @@ searchForm.addEventListener('submit', onFormSubmit);
 //   console.dir(err);
 // }
 // return galleryItems;
-}
+};
 
 async function onLoadMoreBtnClick() {
   loadMoreBtn.addEventListener ('click',
@@ -145,7 +145,7 @@ async function onLoadMoreBtnClick() {
    } catch (err) {
       Notify.failure('RenderGallery method error');}     
    });
-  }
+};
 
 function onCloseBtnClick() {
   closeBtn.addEventListener ('click',
@@ -164,32 +164,28 @@ function onCloseBtnClick() {
 function showLoadMoreBtn() {
   loadMoreBtn.style.display = 'block';
   loadMoreBtn.addEventListener('click', onLoadMoreBtnClick);
-}
+};
 
 function showCloseBtn() {
   closeBtn.style.display = 'block';
   closeBtn.addEventListener('click', onCloseBtnClick); 
-}
+};
 
 function hideLoadMoreBtn() {
   loadMoreBtn.style.display = 'none';
   loadMoreBtn.removeEventListener('click', onLoadMoreBtnClick);
  
-}
+};
 
 function hideCloseBtn() {
   closeBtn.style.display = 'none';
   closeBtn.removeEventListener('click', onCloseBtnClick);
-}
+};
 
 function clearInputFld() {
   inputFldEl.value = "";
   searchForm.addEventListener('submit', onFormSubmit);
-}
-
-// function insertMarckup(markupStrings) {
-//   gallery.insertAdjacentElement('beforeend', markupStrings);
-// }
+};
 
 function clearMarkup() {
   ImgsFetcher.page = 1;
@@ -197,5 +193,5 @@ function clearMarkup() {
   hideCloseBtn();
   hideLoadMoreBtn();
   searchForm.addEventListener('submit', onFormSubmit);
-}
+};
   
