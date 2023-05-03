@@ -3,9 +3,8 @@ import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import {Notify} from 'notiflix';
 import ImgsFetcher from './js/fetchImages';
-import markupBuilder from './js/markupBuilder';
-import { renderGallery } from './renderGallery';
-// import axios from 'axios';
+import { markupBuilder } from './js/markupBuilder';
+import { renderGallery } from './js/renderGallery';
 
 const inputFldEl = document.querySelector('input[name="searchQuery"]');
 const inputSearchBtn = document.querySelector('.search-btn.submit');
@@ -15,7 +14,7 @@ const searchForm = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-more');
 const imagesFetcher = new ImgsFetcher();
-const simpleLightbox = new SimpleLightbox('.gallery a');
+const lightbox = new SimpleLightbox('.gallery a');
 
 let perPage = 40;
 let page = 0;
@@ -31,7 +30,7 @@ async function getRandomPhotos() {
     .getRandomPhotos()
     .then(response => {
       const { data } = response;
-      return gallery.innerHTML = renderGallery(pageMarkup);
+      return gallery.innerHTML = imagesFetcher(pageMarkup);
     })
     .catch(err => {
       console.log(err);
@@ -40,6 +39,7 @@ async function getRandomPhotos() {
     const response = await imagesFetcher.getRandomPhotos();
     const data = response.data;
     const result = renderGallery(data);
+    
   }
   catch (err) {
     console.log(err);
@@ -50,9 +50,10 @@ async function onFormSubmit(e) {
     e.preventDefault();
 
     clearMarkup();
-    imagesFetcher.query = e.target.elements.searchQuery.value;
+    const imagesFetcherQuery = e.target.elements.searchQuery.value;
     const data = await imagesFetcher.getRequest();
     const pageMarkup = markupBuilder(data);
+
     renderGallery(pageMarkup);
     showCloseBtn();
     showLoadMoreBtn();
@@ -63,12 +64,13 @@ async function onFormSubmit(e) {
     } 
     if (imagesFetcher.page < imagesFetcher.totalPage) {
       imagesFetcher.page += 1;
-      showLoadMoreBtn();         
+      showLoadMoreBtn();       
   }
 
 function renderGallery(pageMarkup) {
-  // console.log(pageMarkup);
+ 
   gallery.insertAdjacentHTML('beforeend', pageMarkup);
+  lightbox.refresh();
 }
 
 inputSearchBtn.addEventListener('click', (event) => {
@@ -124,15 +126,18 @@ searchForm.addEventListener('submit', onFormSubmit);
 
 async function onLoadMoreBtnClick() {
   loadMoreBtn.addEventListener ('click',
-  async () => {
-    // console.log(imagesFetcher.page);
+  async (e) => {
     if (imagesFetcher.page === imagesFetcher.totalPage) { 
       Notify.info("We're sorry, but you've reached the end of search results.");
       hideLoadMoreBtn();
       showCloseBtn();}
       else if (imagesFetcher.page < imagesFetcher.totalPage) {
         imagesFetcher.page += 1; 
-        renderGallery();
+        imagesFetcher.query = this.imagesFetcherQuery;
+        const data = await imagesFetcher.getRequest();
+        const pageMarkup = markupBuilder(data);
+
+      renderGallery(pageMarkup);
         showLoadMoreBtn();
         showCloseBtn();
     } try {
@@ -150,12 +155,12 @@ async function onLoadMoreBtnClick() {
 function onCloseBtnClick() {
   closeBtn.addEventListener ('click',
   () => {
-    console.log(gallery);
     clearMarkup();
     new SimpleLightbox('.gallery a');
-    getRandomPhotos();
     clearInputFld();
+    getRandomPhotos()
     page = 1;
+
   });
   searchForm.addEventListener('submit', onFormSubmit);
 };
@@ -163,7 +168,7 @@ function onCloseBtnClick() {
 
 function showLoadMoreBtn() {
   loadMoreBtn.style.display = 'block';
-  loadMoreBtn.addEventListener('click', onLoadMoreBtnClick);
+  onLoadMoreBtnClick();
 };
 
 function showCloseBtn() {
