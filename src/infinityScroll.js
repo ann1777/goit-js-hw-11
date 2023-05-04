@@ -4,7 +4,7 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 import {Notify} from 'notiflix';
 import ImgsFetcher from './js/fetchImages';
 import markupBuilder from './js/markupBuilder';
-import { renderGallery } from './renderGallery';
+import { renderGallery } from './js/renderGallery';
 
 const inputFldEl = document.querySelector('input[name="searchQuery"]');
 const inputSearchBtn = document.querySelector('.search-btn.submit');
