@@ -1,7 +1,7 @@
 'use strict'
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import {Notify} from 'notiflix';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import ImgsFetcher from './js/fetchImages';
 import { markupBuilder } from './js/markupBuilder';
 import { renderGallery } from './js/renderGallery';
@@ -38,7 +38,8 @@ async function getRandomPhotos() {
   try {
     const response = await imagesFetcher.getRandomPhotos();
     const data = response.data;
-    const result = renderGallery(data);
+    renderGallery(data);
+    lightbox.refresh();
     
   }
   catch (err) {
