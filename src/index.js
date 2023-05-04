@@ -67,7 +67,8 @@ async function onFormSubmit(e) {
     } 
     if (imagesFetcher.page < imagesFetcher.totalPage) {
       imagesFetcher.page += 1;
-      showLoadMoreBtn();       
+      showLoadMoreBtn();
+      lightbox.refresh();       
   }
 
 // inputSearchBtn.addEventListener('click', (event) => {
@@ -144,6 +145,7 @@ async function onLoadMoreBtnClick() {
       // lightbox.refresh();
         showLoadMoreBtn();
         showCloseBtn();
+        lightbox.refresh();
      } try {
       const { height: cardHeight } = document.querySelector(".gallery").firstElementChild.getBoundingClientRect();
 
